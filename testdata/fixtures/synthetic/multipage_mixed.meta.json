@@ -1,0 +1,16 @@
+{
+  "must_detect": [
+    {
+      "text": "jane.doe@example.com",
+      "category": "email"
+    },
+    {
+      "text": "123-45-6789",
+      "category": "ssn"
+    }
+  ],
+  "must_not_false_positive": [
+    "Lorem ipsum",
+    "clean control page"
+  ]
+}

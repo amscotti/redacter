@@ -1,0 +1,145 @@
+# Toolchain and tasks for `redact` (Rust edition 2024).
+#
+# Install / activate:
+#   mise install
+#   mise run test
+#
+# Dev toolchain is pinned for reproducible local + CI builds.
+# Cargo.toml `rust-version` remains the compatibility floor (MSRV, ≥ hayro).
+# Check MSRV with: mise run msrv
+
+[tools]
+# Pin deliberately; bump with intentional PRs. Needs ≥ hayro MSRV (~1.92) and
+# edition 2024 (rustc ≥ 1.85).
+rust = "1.97.1"
+
+[tasks.install]
+description = "Install mise-managed tools for this project"
+run = "mise install"
+
+[tasks.build]
+description = "Debug build of the redact CLI"
+run = "cargo build --workspace --locked"
+
+[tasks."build:release"]
+description = "Release build of the redact CLI"
+run = "cargo build --workspace --release --locked"
+
+[tasks."build:ocr"]
+description = "Release build of redact CLI with pure-Rust OCR (ocrs)"
+run = "cargo build -p redact-cli --release --features ocr --locked"
+
+[tasks.test]
+description = "Run unit + e2e tests (offline fixtures)"
+run = "cargo test --workspace --locked"
+
+[tasks."test:e2e"]
+description = "Run CLI e2e tests only"
+run = "cargo test --workspace --locked --test e2e"
+
+[tasks."corpus:fetch"]
+description = "Fetch JSL synthetic PDF de-id subset (gitignored under testdata/corpus/)"
+run = "bash scripts/fetch_public_corpus.sh"
+
+[tasks."test:corpus"]
+description = "Optional public corpus e2e + GT score floor (fetches corpus first)"
+depends = ["corpus:fetch"]
+run = "E2E_CORPUS=1 cargo test -p redact-cli --test corpus_public --locked -- --ignored --nocapture"
+
+[tasks."eval:jsl"]
+description = "JSL detect+redact+verify eval (LEVEL=Easy|Medium|Hard, default Easy)"
+run = """
+cargo build -p redact-cli --release --locked
+python3 scripts/eval_jsl_corpus.py
+"""
+
+[tasks."ocr:models"]
+description = "Download pure-Rust ocrs models into models/ocr/ (gitignored)"
+run = "bash scripts/download_ocrs_models.sh"
+
+[tasks."ocr:spike"]
+description = "O0 ocrs spike on one JSL Medium page (release build)"
+depends = ["corpus:fetch"]
+run = """
+MEDIUM_PDF="$(ls testdata/corpus/jsl-pdf-deid/medium/*.pdf 2>/dev/null | head -n 1)"
+if [[ -z "$MEDIUM_PDF" ]]; then
+  echo "error: no medium corpus PDF found under testdata/corpus/jsl-pdf-deid/medium/" >&2
+  echo "  run: LEVEL=Medium mise run corpus:fetch" >&2
+  exit 1
+fi
+cargo run -p redact-ocr-spike --release --locked -- "$MEDIUM_PDF"
+"""
+
+[tasks."eval:jsl:medium"]
+description = "JSL Medium OCR eval (needs models + corpus + --features ocr binary)"
+run = """
+cargo build -p redact-cli --release --features ocr --locked
+LEVEL=Medium OCR_MODE=auto python3 scripts/eval_jsl_corpus.py
+"""
+
+[tasks."eval:jsl:hard"]
+description = "JSL Hard OCR eval (needs models + corpus + --features ocr binary)"
+run = """
+cargo build -p redact-cli --release --features ocr --locked
+LEVEL=Hard OCR_MODE=auto python3 scripts/eval_jsl_corpus.py
+"""
+
+[tasks."corpus:fetch:all"]
+description = "Fetch Easy + Medium + Hard JSL synthetic PDF subsets"
+run = "LEVEL=all bash scripts/fetch_public_corpus.sh"
+
+[tasks.lint]
+description = "Clippy (warnings as errors) + rustfmt check"
+run = "cargo clippy --workspace --all-targets --locked -- -D warnings && cargo fmt --all -- --check"
+
+[tasks.fmt]
+description = "Format all Rust sources"
+run = "cargo fmt --all"
+
+[tasks.msrv]
+description = "Compile-check with the declared MSRV toolchain (1.92)"
+run = "mise exec rust@1.92.0 -- cargo check --workspace --locked"
+
+[tasks.check]
+description = "fmt check + clippy + tests"
+depends = ["lint", "test"]
+
+[tasks.fixtures]
+description = "Regenerate committed synthetic PDF fixtures"
+run = "cargo run -p redact-fixturegen --locked -- --out-dir testdata/fixtures/synthetic"
+
+# Coverage requires cargo-llvm-cov + llvm-tools-preview on the active toolchain:
+#   cargo install cargo-llvm-cov
+#   rustup component add llvm-tools-preview
+# Coverage tasks ignore redact-fixturegen (dev tool) and cargo registry sources.
+
+[tasks.coverage]
+description = "HTML coverage report + text summary (target/coverage/html/index.html)"
+run = """
+rustup component add llvm-tools-preview >/dev/null 2>&1 || true
+cargo llvm-cov --workspace --locked \
+  --ignore-filename-regex 'redact-fixturegen|/.cargo/registry' \
+  --html --output-dir target/coverage
+echo ""
+echo "Open: target/coverage/html/index.html"
+"""
+
+[tasks."coverage:summary"]
+description = "Print line/region/function coverage summary only"
+run = """
+rustup component add llvm-tools-preview >/dev/null 2>&1 || true
+cargo llvm-cov --workspace --locked \
+  --ignore-filename-regex 'redact-fixturegen|/.cargo/registry' \
+  --summary-only
+"""
+
+[tasks."coverage:lcov"]
+description = "Write lcov.info for editors / CI (target/coverage/lcov.info)"
+run = """
+rustup component add llvm-tools-preview >/dev/null 2>&1 || true
+mkdir -p target/coverage
+cargo llvm-cov --workspace --locked \
+  --ignore-filename-regex 'redact-fixturegen|/.cargo/registry' \
+  --lcov --output-path target/coverage/lcov.info
+echo "Wrote target/coverage/lcov.info"
+"""

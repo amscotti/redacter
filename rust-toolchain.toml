@@ -1,0 +1,5 @@
+# Mirror of mise.toml [tools].rust — keep in sync when bumping.
+# mise.toml is the project source of truth for day-to-day work.
+[toolchain]
+channel = "1.97.1"
+components = ["rustfmt", "clippy"]

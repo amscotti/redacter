@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    tags-ignore:
+      - "v*.*.*"
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (rust-toolchain.toml pin)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.97.1"
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: fmt
+        run: cargo fmt --all -- --check
+
+      - name: clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      - name: test
+        run: cargo test --workspace --locked
+
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny
+
+      - name: cargo-deny
+        run: cargo deny check
+
+  # The `ocr` feature is cfg-gated out of the default build, so it rots
+  # silently (it once stopped compiling entirely). This job keeps it green.
+  # OCR tests use stub backends when models are absent, so no download needed.
+  ocr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (rust-toolchain.toml pin)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.97.1"
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: clippy (ocr feature)
+        run: cargo clippy --workspace --all-targets --locked --features redact-cli/ocr -- -D warnings
+
+      - name: test (ocr feature)
+        run: cargo test -p redact-core --features ocr --locked

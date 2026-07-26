@@ -1,0 +1,31 @@
+[package]
+name = "redact-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license-file.workspace = true
+repository.workspace = true
+description = "Offline PDF redaction: detect, rasterize, verify, certify"
+readme = "README.md"
+
+[features]
+default = []
+ocr = ["dep:ocrs", "dep:rten"]
+
+[dependencies]
+hayro = { workspace = true }
+image = { workspace = true }
+krilla = { workspace = true }
+kurbo = { workspace = true }
+regex = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+ocrs = { workspace = true, optional = true }
+rten = { workspace = true, optional = true }
+
+[dev-dependencies]
+redact-fixturegen = { path = "../redact-fixturegen" }
+tempfile = { workspace = true }

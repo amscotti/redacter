@@ -1,0 +1,32 @@
+{
+  "must_detect": [
+    {
+      "text": "123-45-6789",
+      "category": "ssn"
+    },
+    {
+      "text": "jane.doe@example.com",
+      "category": "email"
+    },
+    {
+      "text": "+1 415-555-0132",
+      "category": "phone"
+    },
+    {
+      "text": "4111111111111111",
+      "category": "credit-card"
+    },
+    {
+      "text": "GB82 WEST 1234 5698 7654 32",
+      "category": "iban"
+    },
+    {
+      "text": "123456780",
+      "category": "routing-number"
+    }
+  ],
+  "must_not_false_positive": [
+    "61200",
+    "Total income"
+  ]
+}

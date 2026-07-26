@@ -1,0 +1,26 @@
+[package]
+name = "redact-fixturegen"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license-file.workspace = true
+repository.workspace = true
+description = "Generate synthetic PDF fixtures with known PII for redact tests"
+
+[lib]
+name = "redact_fixturegen"
+path = "src/lib.rs"
+
+[[bin]]
+name = "redact-fixturegen"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true }
+image = { workspace = true }
+krilla = { workspace = true }
+redact-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tempfile = { workspace = true }

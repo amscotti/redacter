@@ -1,0 +1,46 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/redact-core",
+    "crates/redact-cli",
+    "crates/redact-fixturegen",
+    "crates/redact-ocr-spike",
+]
+default-members = ["crates/redact-cli"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.92"
+license-file = "LICENSE"
+repository = "https://github.com/amscotti/redacter"
+authors = ["redact contributors"]
+
+[workspace.dependencies]
+# `version` is required on path deps for `cargo publish` (the path is
+# stripped and the version resolves from crates.io). Keep in sync with
+# [workspace.package] version — core must be published before cli/fixturegen.
+redact-core = { version = "0.1.0", path = "crates/redact-core" }
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+hayro = "0.7"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+krilla = { version = "0.8", features = ["raster-images"] }
+kurbo = "0.13"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"
+ocrs = "0.12"
+rten = "0.24"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

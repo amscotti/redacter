@@ -1,0 +1,20 @@
+[package]
+name = "redact-ocr-spike"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license-file.workspace = true
+publish = false
+description = "O0 spike: ocrs on one JSL Medium page (throwaway / go-no-go)"
+
+[[bin]]
+name = "ocr-spike"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+image = { workspace = true }
+ocrs = { workspace = true }
+redact-core = { workspace = true }
+rten = { workspace = true }
+serde_json = { workspace = true }

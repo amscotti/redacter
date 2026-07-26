@@ -1,0 +1,19 @@
+{
+  "must_detect": [
+    {
+      "text": "jane.doe@example.com",
+      "category": "email"
+    },
+    {
+      "text": "123-45-6789",
+      "category": "ssn"
+    },
+    {
+      "text": "+1 415-555-0132",
+      "category": "phone"
+    }
+  ],
+  "must_not_false_positive": [
+    "SCANNED COPY"
+  ]
+}

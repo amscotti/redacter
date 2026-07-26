@@ -1,0 +1,33 @@
+/target/
+**/target/
+/target/coverage/
+/coverage/
+/lcov.info
+/cobertura.xml
+/testdata/generated/
+/testdata/corpus/
+.DS_Store
+__pycache__/
+*.py[cod]
+*.swp
+*.swo
+.idea/
+.vscode/
+*.pdb
+/out/
+*.redacted.pdf
+*.cert.json
+.mise.local.toml
+mise.local.toml
+
+# Local smoke outputs at repo root
+/out.pdf
+/*.redacted.pdf
+models/
+
+# gaggle: keep durable config; ignore run state
+.review/*
+!.review/config.toml
+!.review/checklist.md
+!.review/workflows/
+!.review/workflows/**

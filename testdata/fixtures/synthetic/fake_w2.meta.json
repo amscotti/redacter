@@ -1,0 +1,24 @@
+{
+  "must_detect": [
+    {
+      "text": "123-45-6789",
+      "category": "ssn"
+    },
+    {
+      "text": "jane.doe@example.com",
+      "category": "email"
+    },
+    {
+      "text": "+1 415-555-0132",
+      "category": "phone"
+    },
+    {
+      "text": "4111111111111111",
+      "category": "credit-card"
+    }
+  ],
+  "must_not_false_positive": [
+    "58420.00",
+    "Wages"
+  ]
+}

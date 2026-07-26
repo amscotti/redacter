@@ -1,0 +1,47 @@
+# cargo-deny baseline: supply-chain side of the architecture gates.
+# The workspace itself is MIT; the allowlist below additionally permits the
+# common permissive licenses our dependencies use. Advisories fail the build,
+# bans/sources warn so a new transitive dep doesn't silently break CI before
+# review.
+
+[graph]
+targets = []
+
+[licenses]
+allow = [
+  "MIT",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Zlib",
+  "BSL-1.0",
+  "CC0-1.0",
+  "Unicode-DFS-2016",
+  "Unicode-3.0",
+  "MPL-2.0",
+  "OpenSSL",
+]
+confidence-threshold = 0.8
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+highlight = "all"
+
+[advisories]
+# Defaults (fail-closed): vulnerabilities deny, yanked warns. The installed
+# gate (cargo-deny 0.19) no longer takes per-class severity keys here.
+ignore = [
+    # RUSTSEC-2026-0192: ttf-parser is unmaintained with no safe upgrade.
+    # Transitive via rustybuzz <- krilla (PDF rebuild only); redact never
+    # parses fonts for detection decisions. Revisit when krilla migrates to
+    # skrifa; do NOT extend this into a blanket ignore.
+    { id = "RUSTSEC-2026-0192", reason = "ttf-parser unmaintained, no safe upgrade; transitive via krilla only; revisit on krilla->skrifa" },
+    { id = "RUSTSEC-2026-0206", reason = "rustybuzz unmaintained, no safe upgrade; transitive via krilla only; revisit on krilla->harfrust" },
+]
+
+[sources]
+unknown-registry = "warn"
+unknown-git = "warn"
